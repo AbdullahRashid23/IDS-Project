@@ -9,3 +9,4 @@ textblob
 wordcloud
 matplotlib
 seaborn
+streamlit-lottie
