@@ -7,3 +7,4 @@ This project predicts stock market sentiment from news.
 - `app.py`: Dashboard
 - `models/`: Trained AI
 - `docs/`: Report
+streamlit-lottie
