@@ -136,14 +136,16 @@ def load_lottieurl(url: str):
         from streamlit_lottie import st_lottie
         r = requests.get(url)
         return r.json() if r.status_code == 200 else None
-    except: return None
+    except ImportError:
+        return None
+    except:
+        return None
 
 # Animations
 anim_robot = load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_puciaact.json")
 anim_processing = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_m9ubr9f7.json")
 
 # --- 4. BACKEND LOGIC (PRESERVED & ROBUST) ---
-# (Logic identical to previous robust version for stability)
 try:
     import preprocessing 
 except ImportError:
@@ -170,7 +172,11 @@ def load_model():
     # Fallback Training if files missing
     if not MODEL_PATH or not TFIDF_PATH:
         if not DATA_PATH: return None, None
-        df = pd.read_csv(DATA_PATH).dropna(subset=['Sentence', 'Sentiment'])
+        df = pd.read_csv(DATA_PATH)
+        # Fix 1: Ensure text column is actually text (Fixes TypeError)
+        df['Sentence'] = df['Sentence'].astype(str)
+        df = df.dropna(subset=['Sentence', 'Sentiment'])
+        
         if 'Unnamed: 0' in df.columns: df = df.drop(columns=['Unnamed: 0'])
         df['clean'] = df['Sentence'].apply(preprocessing.clean_text)
         tfidf = TfidfVectorizer(max_features=5000, ngram_range=(1,2))
@@ -184,6 +190,8 @@ def load_data():
     if not DATA_PATH: return None
     df = pd.read_csv(DATA_PATH)
     if 'Unnamed: 0' in df.columns: df = df.drop(columns=['Unnamed: 0'])
+    # Fix 1 Repeat: Ensure text column is actually text
+    df['Sentence'] = df['Sentence'].astype(str)
     df['Label'] = df['Sentiment'].map({0: 'Negative', 1: 'Positive'})
     return df
 
@@ -199,7 +207,6 @@ st.title("MARKETMIND ⚡ AI")
 st.markdown("**Next-Gen Financial Sentiment Analysis Terminal**")
 
 # --- MAIN LAYOUT ---
-# Tabs for cleaner navigation than sidebar
 tab1, tab2, tab3 = st.tabs(["🚀 Live Terminal", "📊 Market Intelligence", "📂 Bulk Processor"])
 
 # ================= TAB 1: LIVE TERMINAL =================
@@ -238,15 +245,6 @@ with tab1:
                     pred = model.predict(vec)[0]
                     prob = model.predict_proba(vec)[0][pred]
                     
-                    # Highlight Logic (Simulated for visuals)
-                    words = txt.split()
-                    highlighted_html = ""
-                    for word in words:
-                        # Simple heuristic for coloring based on result
-                        color = "#4ade80" if pred == 1 else "#f87171"
-                        # In a real app, check coefficients here. For now, we colorize the whole text style
-                        highlighted_html += f"<span style='color:white'>{word} </span>"
-
                     result = {
                         "text": txt,
                         "prediction": "BULLISH 🐂" if pred == 1 else "BEARISH 🐻",
@@ -342,6 +340,7 @@ with tab2:
         with c1:
             st.markdown('<div class="glass-card">', unsafe_allow_html=True)
             st.subheader("Sentiment Distribution")
+            # Fix 2: Changed from px.donut to px.pie with hole parameter
             fig_donut = px.pie(df, names='Label', hole=0.6, 
                                color='Label', 
                                color_discrete_map={'Positive':'#00ff9d', 'Negative':'#ff4b4b'})
@@ -353,7 +352,8 @@ with tab2:
         with c2:
             st.markdown('<div class="glass-card">', unsafe_allow_html=True)
             st.subheader("Top Market Keywords")
-            all_text = " ".join(df['Sentence'])
+            # Fix 3: Ensure all sentences are strings to avoid join error
+            all_text = " ".join(df['Sentence'].astype(str))
             cleaned = preprocessing.clean_text(all_text).split()
             counts = Counter(cleaned).most_common(10)
             word_df = pd.DataFrame(counts, columns=['Keyword', 'Frequency'])
@@ -383,6 +383,9 @@ with tab3:
             try:
                 b_df = pd.read_csv(uploaded_file)
                 if 'Sentence' in b_df.columns:
+                    # Fix 4: Ensure batch data is also string
+                    b_df['Sentence'] = b_df['Sentence'].astype(str)
+                    
                     with st.spinner("Processing Large Language Vectors..."):
                         progress_bar = st.progress(0)
                         for i in range(100):
