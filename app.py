@@ -12,47 +12,63 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from collections import Counter
 
-# --- 1. PAGE CONFIG & MODERN THEME SETUP ---
+# --- 1. PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="MarketMind | Pro Terminal",
-    page_icon="⚡",
+    page_title="Abdullah's AI | Financial Terminal",
+    page_icon="🦅",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- 2. ADVANCED CSS: GLASSMORPHISM & NEON ---
+# --- 2. ULTRA-MODERN UI (CSS) ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
-    /* BASE THEME */
+    /* BACKGROUND & FONT */
     .stApp {
-        background: radial-gradient(circle at 10% 20%, rgb(15, 23, 42) 0%, rgb(10, 10, 15) 90%);
-        font-family: 'Inter', sans-serif;
+        background: radial-gradient(circle at 0% 0%, #1e1b4b 0%, #0f172a 100%);
+        font-family: 'Outfit', sans-serif;
     }
 
-    /* SCROLLING TICKER */
+    /* ABDULLAH'S AI HERO TITLE */
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #fbbf24, #f59e0b, #d97706);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 40px rgba(245, 158, 11, 0.3);
+        margin-bottom: 0px;
+    }
+    .hero-subtitle {
+        color: #94a3b8;
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+
+    /* TICKER TAPE */
     .ticker-wrap {
         width: 100%;
-        overflow: hidden;
-        background-color: rgba(0,0,0,0.3);
-        padding: 10px 0;
+        background-color: rgba(0,0,0,0.5);
+        padding: 8px 0;
+        border-top: 1px solid rgba(255,255,255,0.1);
         border-bottom: 1px solid rgba(255,255,255,0.1);
-        margin-bottom: 20px;
+        margin-bottom: 30px;
         white-space: nowrap;
+        overflow: hidden;
     }
     .ticker {
         display: inline-block;
-        animation: marquee 30s linear infinite;
+        animation: marquee 40s linear infinite;
     }
     .ticker-item {
         display: inline-block;
         padding: 0 2rem;
         font-family: 'JetBrains Mono', monospace;
-        color: #00ff9d; /* Neon Green */
-        font-size: 0.9rem;
+        color: #34d399; 
     }
-    .ticker-item.down { color: #ff4b4b; } /* Neon Red */
+    .ticker-item.neg { color: #f87171; }
     @keyframes marquee {
         0% { transform: translateX(100%); }
         100% { transform: translateX(-100%); }
@@ -60,92 +76,81 @@ st.markdown("""
 
     /* GLASS CARDS */
     .glass-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        transition: all 0.3s ease;
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, border-color 0.3s ease;
     }
     .glass-card:hover {
-        border-color: rgba(99, 102, 241, 0.5);
         transform: translateY(-5px);
-        box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15);
+        border-color: #f59e0b; /* Gold accent on hover */
     }
 
-    /* NEON TEXT & HEADERS */
-    h1 {
-        background: linear-gradient(to right, #00c6ff, #0072ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        font-size: 3rem !important;
+    /* CUSTOM INPUT */
+    .stTextArea textarea {
+        background-color: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: white !important;
+        border-radius: 12px;
     }
-    h2, h3 { color: #e2e8f0; font-weight: 600; }
-    
-    /* CUSTOM BUTTONS */
+    .stTextArea textarea:focus {
+        border-color: #f59e0b !important;
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    }
+
+    /* GOLD BUTTONS */
     .stButton>button {
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
         color: white;
         border: none;
-        border-radius: 8px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
+        border-radius: 10px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
         text-transform: uppercase;
-        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        letter-spacing: 1px;
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
-    }
-
-    /* METRIC STYLING */
-    div[data-testid="stMetricValue"] {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 2rem;
-        text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        transform: scale(1.05);
+        box-shadow: 0 5px 20px rgba(217, 119, 6, 0.5);
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. TICKER & ANIMATIONS ---
-def render_ticker():
-    ticker_html = """
-    <div class="ticker-wrap">
-        <div class="ticker">
-            <span class="ticker-item">BTC +5.2% ▲</span>
-            <span class="ticker-item down">ETH -1.4% ▼</span>
-            <span class="ticker-item">NVDA +3.1% ▲</span>
-            <span class="ticker-item">TSLA +0.8% ▲</span>
-            <span class="ticker-item down">AAPL -0.5% ▼</span>
-            <span class="ticker-item">AI_INDEX +12.4% ▲</span>
-            <span class="ticker-item down">USD/EUR -0.01% ▼</span>
-            <span class="ticker-item">MARKET_SENTIMENT: BULLISH 🐂</span>
-        </div>
-    </div>
-    """
-    st.markdown(ticker_html, unsafe_allow_html=True)
-
+# --- 3. HELPER FUNCTIONS (CRASH-PROOF) ---
 def load_lottieurl(url: str):
     try:
         from streamlit_lottie import st_lottie
         r = requests.get(url)
         return r.json() if r.status_code == 200 else None
-    except ImportError:
-        return None
     except:
         return None
 
 # Animations
 anim_robot = load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_puciaact.json")
-anim_processing = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_m9ubr9f7.json")
 
-# --- 4. BACKEND LOGIC (PRESERVED & ROBUST) ---
+# Ticker Render
+def render_ticker():
+    ticker_html = """
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <span class="ticker-item">ABDULLAH_AI +10.5% ▲</span>
+            <span class="ticker-item">BTC +2.1% ▲</span>
+            <span class="ticker-item neg">ETH -1.4% ▼</span>
+            <span class="ticker-item">GOLD +0.5% ▲</span>
+            <span class="ticker-item neg">TSLA -3.2% ▼</span>
+            <span class="ticker-item">NVDA +4.1% ▲</span>
+            <span class="ticker-item">MARKET_STATUS: OPEN 🟢</span>
+        </div>
+    </div>
+    """
+    st.markdown(ticker_html, unsafe_allow_html=True)
+
+# --- 4. BACKEND LOGIC (ROBUST) ---
 try:
     import preprocessing 
 except ImportError:
@@ -169,15 +174,14 @@ TFIDF_PATH = find_file('tfidf.pkl', 'models')
 
 @st.cache_resource
 def load_model():
-    # Fallback Training if files missing
+    # If no model files, train one on the fly
     if not MODEL_PATH or not TFIDF_PATH:
         if not DATA_PATH: return None, None
         df = pd.read_csv(DATA_PATH)
-        # Fix 1: Ensure text column is actually text (Fixes TypeError)
-        df['Sentence'] = df['Sentence'].astype(str)
+        df['Sentence'] = df['Sentence'].astype(str) # Fix for mixed types
         df = df.dropna(subset=['Sentence', 'Sentiment'])
-        
         if 'Unnamed: 0' in df.columns: df = df.drop(columns=['Unnamed: 0'])
+        
         df['clean'] = df['Sentence'].apply(preprocessing.clean_text)
         tfidf = TfidfVectorizer(max_features=5000, ngram_range=(1,2))
         X = tfidf.fit_transform(df['clean'])
@@ -190,222 +194,233 @@ def load_data():
     if not DATA_PATH: return None
     df = pd.read_csv(DATA_PATH)
     if 'Unnamed: 0' in df.columns: df = df.drop(columns=['Unnamed: 0'])
-    # Fix 1 Repeat: Ensure text column is actually text
-    df['Sentence'] = df['Sentence'].astype(str)
+    df['Sentence'] = df['Sentence'].astype(str) # Fix for mixed types
     df['Label'] = df['Sentiment'].map({0: 'Negative', 1: 'Positive'})
     return df
 
-# --- 5. APP LOGIC ---
+# --- 5. APP LAYOUT ---
 model, tfidf = load_model()
 df = load_data()
 
 if 'history' not in st.session_state: st.session_state['history'] = []
 
-# --- RENDER HEADER ---
+# TITLE SECTION
 render_ticker()
-st.title("MARKETMIND ⚡ AI")
-st.markdown("**Next-Gen Financial Sentiment Analysis Terminal**")
+st.markdown('<div class="hero-title">ABDULLAH\'S AI</div>', unsafe_allow_html=True)
+st.markdown('<div class="hero-subtitle">Next-Generation Financial Sentiment Engine</div>', unsafe_allow_html=True)
 
-# --- MAIN LAYOUT ---
-tab1, tab2, tab3 = st.tabs(["🚀 Live Terminal", "📊 Market Intelligence", "📂 Bulk Processor"])
+# TABS
+tab1, tab2, tab3 = st.tabs(["🚀 Live Terminal", "📊 Market Intel", "📂 Batch Processor"])
 
-# ================= TAB 1: LIVE TERMINAL =================
+# --- TAB 1: LIVE TERMINAL ---
 with tab1:
-    col_main, col_viz = st.columns([1.5, 1])
+    c1, c2 = st.columns([1.5, 1])
     
-    with col_main:
+    with c1:
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.subheader("📡 Input Signal")
+        st.markdown("### 📡 Enter Market News")
         
-        # Randomizer Feature
-        sample_headlines = [
-            "Company reports record-breaking profits for Q3!",
-            "Stocks plummet as CEO announces unexpected resignation.",
-            "New merger talks spark optimism among investors.",
-            "Supply chain issues cause major delays and revenue loss.",
-            "Tech giant unveils revolutionary AI product, shares soar."
+        # Randomizer
+        headlines = [
+            "Company revenue skyrockets by 200% beating all estimates.",
+            "CEO steps down amid scandal, stocks tumble.",
+            "Inflation fears grow as federal reserve hints at rate hikes.",
+            "New AI partnership announced, investors are thrilled."
         ]
         
-        c_txt, c_btn = st.columns([4,1])
-        with c_btn:
-            if st.button("🎲 Random", help="Generate a random headline"):
-                st.session_state['rand_text'] = random.choice(sample_headlines)
+        col_r_btn, col_r_txt = st.columns([1, 4])
+        with col_r_btn:
+            if st.button("🎲 Lucky"):
+                st.session_state['rand_text'] = random.choice(headlines)
         
-        default_text = st.session_state.get('rand_text', "")
-        txt = st.text_area("Enter Financial News / Tweets:", value=default_text, height=120, placeholder="e.g. 'Apple forecasts revenue drop due to chip shortage'")
+        user_text = st.text_area(
+            "Headline / Tweet", 
+            value=st.session_state.get('rand_text', ""), 
+            height=130,
+            placeholder="e.g. Apple stocks surge after new iPhone launch..."
+        )
         
         if st.button("ANALYZE SIGNAL", use_container_width=True):
-            if not txt:
-                st.warning("⚠️ Signal Lost: Please enter text.")
+            if not user_text:
+                st.toast("⚠️ Please enter text first!")
             else:
-                with st.spinner("Decoding Sentiment Vectors..."):
-                    time.sleep(0.8) # UX Delay
-                    clean_txt = preprocessing.clean_text(txt)
-                    vec = tfidf.transform([clean_txt])
-                    pred = model.predict(vec)[0]
-                    prob = model.predict_proba(vec)[0][pred]
+                with st.spinner("Processing Neural Vectors..."):
+                    time.sleep(0.5) # UI Effect
                     
+                    # LOGIC:
+                    clean = preprocessing.clean_text(user_text)
+                    vec = tfidf.transform([clean])
+                    
+                    # Get "Positivity" Score (Probability of Class 1)
+                    positivity_score = model.predict_proba(vec)[0][1]
+                    
+                    # Determine Label based on Score
+                    if positivity_score >= 0.6:
+                        label = "BULLISH 🐂"
+                        color = "green"
+                    elif positivity_score <= 0.4:
+                        label = "BEARISH 🐻"
+                        color = "red"
+                    else:
+                        label = "NEUTRAL ⚖️"
+                        color = "gray"
+                        
                     result = {
-                        "text": txt,
-                        "prediction": "BULLISH 🐂" if pred == 1 else "BEARISH 🐻",
-                        "raw_pred": "Positive" if pred == 1 else "Negative",
-                        "confidence": prob,
-                        "timestamp": time.strftime("%H:%M:%S")
+                        "text": user_text,
+                        "label": label,
+                        "score": positivity_score,
+                        "time": time.strftime("%H:%M:%S")
                     }
                     st.session_state['history'].insert(0, result)
+                    st.toast("Analysis Complete!", icon="✅")
+                    
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with col_viz:
+    with c2:
         if st.session_state['history']:
-            latest = st.session_state['history'][0]
-            is_bull = latest['raw_pred'] == "Positive"
-            accent_color = "#00ff9d" if is_bull else "#ff4b4b"
+            last = st.session_state['history'][0]
+            score_pct = last['score'] * 100
+            
+            # Gauge Color Logic
+            if score_pct > 50: gauge_color = "#34d399" # Green
+            else: gauge_color = "#f87171" # Red
             
             st.markdown(f"""
-            <div class="glass-card" style="border-color: {accent_color}; text-align: center;">
-                <h4 style="margin:0; opacity:0.7">DETECTED SENTIMENT</h4>
-                <h1 style="font-size: 3.5rem !important; margin: 10px 0; background: none; -webkit-text-fill-color: {accent_color}; text-shadow: 0 0 20px {accent_color};">
-                    {latest['prediction']}
-                </h1>
-                <hr style="border-color: rgba(255,255,255,0.1)">
-                <div style="display:flex; justify-content:space-between;">
-                    <span>Confidence:</span>
-                    <span style="font-family:'JetBrains Mono'; color:{accent_color}">{latest['confidence']*100:.2f}%</span>
+            <div class="glass-card" style="text-align: center; border-top: 4px solid {gauge_color}">
+                <div style="font-size: 1rem; color: #94a3b8; margin-bottom: 5px;">AI VERDICT</div>
+                <div style="font-size: 3rem; font-weight: 800; color: {gauge_color}; margin-bottom: 10px;">
+                    {last['label']}
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
-            # Detailed Gauge
+            # POSITIVITY METER (Gauge)
             fig = go.Figure(go.Indicator(
-                mode = "gauge+number+delta",
-                value = latest['confidence'] * 100,
+                mode = "gauge+number",
+                value = score_pct,
                 domain = {'x': [0, 1], 'y': [0, 1]},
-                title = {'text': "AI Certainty", 'font': {'size': 14, 'color': "white"}},
-                delta = {'reference': 80, 'increasing': {'color': "#00ff9d"}},
+                title = {'text': "Positivity Meter (0-100)", 'font': {'color': 'white', 'size': 14}},
                 gauge = {
                     'axis': {'range': [0, 100], 'tickcolor': "white"},
-                    'bar': {'color': accent_color},
+                    'bar': {'color': "white", 'thickness': 0.2},
                     'bgcolor': "rgba(0,0,0,0)",
                     'borderwidth': 2,
                     'bordercolor': "#333",
                     'steps': [
-                        {'range': [0, 50], 'color': 'rgba(255, 75, 75, 0.3)'},
-                        {'range': [50, 100], 'color': 'rgba(0, 255, 157, 0.3)'}],
-                }))
-            fig.update_layout(height=200, margin=dict(l=20,r=20,t=30,b=20), paper_bgcolor='rgba(0,0,0,0)', font={'color': "white", 'family': "Inter"})
+                        {'range': [0, 50], 'color': '#ef4444'}, # Red
+                        {'range': [50, 100], 'color': '#10b981'} # Green
+                    ],
+                    'threshold': {
+                        'line': {'color': "white", 'width': 4},
+                        'thickness': 0.75,
+                        'value': score_pct
+                    }
+                }
+            ))
+            fig.update_layout(height=220, margin=dict(t=30,b=10,l=20,r=20), paper_bgcolor='rgba(0,0,0,0)', font={'color': "white"})
             st.plotly_chart(fig, use_container_width=True)
-
+            
         else:
-            # Placeholder State
+            # Empty State
             st.markdown("""
-            <div class="glass-card" style="text-align: center; color: #64748b;">
-                <h3>Waiting for Signal...</h3>
-                <p>Enter a headline to activate the neural network.</p>
+            <div class="glass-card" style="text-align:center; padding: 40px;">
+                <h3 style="color: #64748b;">Waiting for Input...</h3>
+                <div style="font-size: 3rem;">🦅</div>
             </div>
             """, unsafe_allow_html=True)
-            try:
-                from streamlit_lottie import st_lottie
-                if anim_processing: st_lottie(anim_processing, height=150)
-            except: pass
 
-    # History Table (Modernized)
+    # HISTORY LOG
     if st.session_state['history']:
-        st.markdown("### 📝 Session Log")
-        hist_df = pd.DataFrame(st.session_state['history'])
+        st.markdown("### 📝 Recent Analysis")
+        # Custom Dataframe
+        h_df = pd.DataFrame(st.session_state['history'])
         st.dataframe(
-            hist_df[['timestamp', 'prediction', 'confidence', 'text']],
+            h_df[['time', 'label', 'score', 'text']],
             column_config={
-                "confidence": st.column_config.ProgressColumn("Confidence", min_value=0, max_value=1, format="%.2f"),
-                "text": st.column_config.TextColumn("Headline", width="medium"),
+                "score": st.column_config.ProgressColumn("Positivity", min_value=0, max_value=1, format="%.2f"),
+                "label": st.column_config.TextColumn("Verdict"),
+                "text": st.column_config.TextColumn("Headline", width="large"),
             },
             use_container_width=True,
             hide_index=True
         )
 
-# ================= TAB 2: MARKET INTELLIGENCE =================
+# --- TAB 2: MARKET INTEL ---
 with tab2:
     if df is not None:
-        st.markdown("### 🧠 Dataset Analytics")
-        
-        # KPI ROW
-        k1, k2, k3, k4 = st.columns(4)
-        k1.metric("Total Headlines", f"{len(df):,}", "Active", border=True)
-        k2.metric("Bullish Sentiment", f"{len(df[df['Sentiment']==1]):,}", "+Good News", border=True)
-        k3.metric("Bearish Sentiment", f"{len(df[df['Sentiment']==0]):,}", "-Bad News", border=True)
-        k4.metric("Model Precision", "83.4%", "+1.2%", border=True)
+        # METRICS
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Dataset Size", f"{len(df):,}", border=True)
+        m2.metric("Bullish News", f"{len(df[df['Sentiment']==1]):,}", border=True)
+        m3.metric("Bearish News", f"{len(df[df['Sentiment']==0]):,}", border=True)
         
         st.markdown("---")
         
-        c1, c2 = st.columns(2)
-        with c1:
+        row1_1, row1_2 = st.columns(2)
+        with row1_1:
             st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-            st.subheader("Sentiment Distribution")
-            # Fix 2: Changed from px.donut to px.pie with hole parameter
-            fig_donut = px.pie(df, names='Label', hole=0.6, 
-                               color='Label', 
-                               color_discrete_map={'Positive':'#00ff9d', 'Negative':'#ff4b4b'})
-            fig_donut.update_layout(showlegend=True, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
-                                    font=dict(color="white"), margin=dict(t=30, b=0, l=0, r=0))
-            st.plotly_chart(fig_donut, use_container_width=True)
+            st.subheader("Global Sentiment Ratio")
+            # Fixed Pie Chart
+            fig_pie = px.pie(df, names='Label', hole=0.5, 
+                             color='Label',
+                             color_discrete_map={'Positive':'#10b981', 'Negative':'#ef4444'})
+            fig_pie.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
+                                  font=dict(color="white"), showlegend=True)
+            st.plotly_chart(fig_pie, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
-            
-        with c2:
+
+        with row1_2:
             st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-            st.subheader("Top Market Keywords")
-            # Fix 3: Ensure all sentences are strings to avoid join error
+            st.subheader("Top Keywords (Trending)")
+            # Fix: Ensure all text is string
             all_text = " ".join(df['Sentence'].astype(str))
-            cleaned = preprocessing.clean_text(all_text).split()
-            counts = Counter(cleaned).most_common(10)
-            word_df = pd.DataFrame(counts, columns=['Keyword', 'Frequency'])
+            clean_all = preprocessing.clean_text(all_text).split()
+            counts = Counter(clean_all).most_common(10)
+            w_df = pd.DataFrame(counts, columns=['Word', 'Count'])
             
-            fig_bar = px.bar(word_df, x='Frequency', y='Keyword', orientation='h', text='Frequency',
-                             color='Frequency', color_continuous_scale='Viridis')
+            fig_bar = px.bar(w_df, x='Count', y='Word', orientation='h', 
+                             text='Count', color='Count', color_continuous_scale='Oranges')
             fig_bar.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
                                   font=dict(color="white"), yaxis=dict(autorange="reversed"))
             st.plotly_chart(fig_bar, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
+            
     else:
-        st.error("Data Source Offline.")
+        st.error("Dataset not found. Please ensure 'Sentiment_Stock_data.csv' is in the 'data' folder.")
 
-# ================= TAB 3: BATCH PROCESSOR =================
+# --- TAB 3: BATCH PROCESSOR ---
 with tab3:
-    col_up, col_down = st.columns([1, 2])
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.markdown("### 📂 Bulk Analysis (CSV)")
     
-    with col_up:
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.markdown("### 📂 Data Ingestion")
-        uploaded_file = st.file_uploader("Upload CSV (Required col: 'Sentence')", type=['csv'])
-        st.info("Supported formats: UTF-8 Encoded CSV")
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    with col_down:
-        if uploaded_file and st.button("🚀 Execute Batch Analysis"):
+    upl = st.file_uploader("Upload File (Must contain 'Sentence' column)", type=['csv'])
+    
+    if upl:
+        if st.button("🚀 Run Batch Process"):
             try:
-                b_df = pd.read_csv(uploaded_file)
+                b_df = pd.read_csv(upl)
                 if 'Sentence' in b_df.columns:
-                    # Fix 4: Ensure batch data is also string
-                    b_df['Sentence'] = b_df['Sentence'].astype(str)
+                    b_df['Sentence'] = b_df['Sentence'].astype(str) # Safety Fix
                     
-                    with st.spinner("Processing Large Language Vectors..."):
-                        progress_bar = st.progress(0)
-                        for i in range(100):
-                            time.sleep(0.01)
-                            progress_bar.progress(i + 1)
-                            
+                    with st.spinner("Analyzing thousands of data points..."):
+                        # Processing
                         b_df['clean'] = b_df['Sentence'].apply(preprocessing.clean_text)
                         X_batch = tfidf.transform(b_df['clean'])
-                        preds = model.predict(X_batch)
+                        
+                        # Get Scores
                         probs = model.predict_proba(X_batch)
+                        b_df['Positivity_Score'] = [p[1] for p in probs]
+                        b_df['Prediction'] = ['Bullish' if s > 0.5 else 'Bearish' for s in b_df['Positivity_Score']]
                         
-                        b_df['Sentiment'] = ['Positive' if p==1 else 'Negative' for p in preds]
-                        b_df['Confidence'] = [max(p) for p in probs]
-                        
-                        st.success("Batch Processing Complete.")
+                        st.success("Batch Complete!")
                         st.dataframe(b_df.head(), use_container_width=True)
                         
+                        # Download
                         csv = b_df.to_csv(index=False).encode('utf-8')
-                        st.download_button(label="📥 Download Intelligence Report", data=csv, file_name='market_intel_report.csv', mime='text/csv')
+                        st.download_button("📥 Download Report", csv, "Abdullah_AI_Report.csv", "text/csv")
                 else:
-                    st.error("Invalid Schema: 'Sentence' column missing.")
+                    st.error("Error: CSV missing 'Sentence' column.")
             except Exception as e:
-                st.error(f"Ingestion Failed: {e}")
+                st.error(f"File Error: {e}")
+                
+    st.markdown('</div>', unsafe_allow_html=True)
