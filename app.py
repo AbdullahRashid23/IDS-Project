@@ -6,21 +6,22 @@ from plotly.subplots import make_subplots
 import time
 import yfinance as yf
 import numpy as np
+import re
 
 # ==========================================
 # 0. CONFIGURATION & ASSETS
 # ==========================================
-st.set_page_config(page_title="Jugar-AI", page_icon="💸", layout="wide")
+st.set_page_config(page_title="Jugar-AI", page_icon="🧬", layout="wide")
 
 # ==========================================
 # 1. THE "JUGAR" STYLE ENGINE
 # ==========================================
 st.markdown("""
 <style>
-    /* FONTS: Montserrat (Headers), JetBrains Mono (Data), Inter (Body) */
+    /* FONTS */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Montserrat:wght@400;700;800;900&display=swap');
 
-    /* BACKGROUND: Deep Void with Gold Dust */
+    /* BACKGROUND */
     .stApp {
         background-color: #050505;
         background-image: 
@@ -35,7 +36,7 @@ st.markdown("""
     ::-webkit-scrollbar-track { background: #000; }
     ::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 3px; }
 
-    /* CARDS: The "Jugar" Glass Effect */
+    /* CARDS */
     .jugar-card {
         background: rgba(20, 20, 20, 0.7);
         backdrop-filter: blur(20px);
@@ -62,14 +63,13 @@ st.markdown("""
     }
     h1 { font-weight: 900 !important; }
     
-    /* SPECIAL TEXT GRADIENT */
     .gold-text {
         background: linear-gradient(to right, #FFD700, #FDB931);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
-    /* TICKER TAPE */
+    /* TICKER */
     .ticker-wrap {
         background: #000;
         border-top: 1px solid #333;
@@ -118,8 +118,6 @@ st.markdown("""
         font-family: 'JetBrains Mono', monospace;
         color: #FFD700 !important;
     }
-    
-    /* SIDEBAR */
     section[data-testid="stSidebar"] {
         background: #080808;
         border-right: 1px solid #222;
@@ -140,7 +138,7 @@ def render_ticker():
             <span class="ticker-item">ETH $3,500 ▲</span>
             <span class="ticker-item">GOLD $2,380 ▼</span>
             <span class="ticker-item">SPY $512.50 ▲</span>
-            <span class="ticker-item">NVDA $900.00 ▲</span>
+            <span class="ticker-item">TSLA $175.20 ▼</span>
         </marquee>
     </div>
     """, unsafe_allow_html=True)
@@ -151,20 +149,14 @@ def get_chart(ticker):
         df = stock.history(period="6mo")
         if df.empty: return None, None
         
-        # Technicals
         df['SMA_20'] = df['Close'].rolling(window=20).mean()
-        df['RSI'] = 50 + np.random.normal(0, 10, len(df)) # Mock RSI for visuals if lib missing
-
-        # Plotly Chart
+        
         fig = make_subplots(rows=2, cols=1, shared_xaxes=True, row_heights=[0.7, 0.3], vertical_spacing=0.05)
         
-        # Candlesticks
         fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'],
                                      increasing_line_color='#26a69a', decreasing_line_color='#ef5350', name='OHLC'), row=1, col=1)
-        # SMA
         fig.add_trace(go.Scatter(x=df.index, y=df['SMA_20'], mode='lines', name='SMA 20', line=dict(color='#FFD700', width=1.5)), row=1, col=1)
         
-        # Volume
         colors = ['#26a69a' if c >= o else '#ef5350' for c, o in zip(df['Close'], df['Open'])]
         fig.add_trace(go.Bar(x=df.index, y=df['Volume'], marker_color=colors, opacity=0.5, name='Volume'), row=2, col=1)
 
@@ -180,10 +172,48 @@ def get_chart(ticker):
 class SentimentBrain:
     def analyze(self, text):
         from textblob import TextBlob
-        score = (TextBlob(text).sentiment.polarity + 1) / 2
-        label = "BULLISH" if score > 0.6 else "BEARISH" if score < 0.4 else "NEUTRAL"
-        color = "#26a69a" if label == "BULLISH" else "#ef5350" if label == "BEARISH" else "#ffffff"
-        return {"label": label, "score": score, "color": color, "confidence": abs(score-0.5)*2}
+        
+        # 1. DICTIONARY BOOST (Fixes the "Plummet" Issue)
+        text_lower = text.lower()
+        
+        # Weighted Financial Dictionary
+        bull_words = ['surge', 'soar', 'jump', 'rise', 'gain', 'beat', 'profit', 'record', 'growth', 'bull', 'buy', 'upgrade', 'high', 'rocket']
+        bear_words = ['plummet', 'crash', 'drop', 'fall', 'miss', 'loss', 'debt', 'bear', 'sell', 'downgrade', 'halt', 'warning', 'low', 'dip']
+        
+        manual_score = 0
+        for w in bull_words: 
+            if w in text_lower: manual_score += 0.5
+        for w in bear_words: 
+            if w in text_lower: manual_score -= 0.5
+            
+        # 2. NLP Score
+        blob_score = TextBlob(text).sentiment.polarity
+        
+        # 3. Hybrid Calculation
+        # If manual keywords exist, they dominate. If not, fallback to Blob.
+        final_score = blob_score + manual_score
+        
+        # Normalize to 0-1 range (where 0 is Bear, 1 is Bull)
+        # Standardize: -1.0 to 1.0 -> 0.0 to 1.0
+        norm_score = (final_score + 1) / 2
+        
+        # Clamp between 0.01 and 0.99
+        norm_score = max(0.01, min(0.99, norm_score))
+
+        # 4. Classification
+        if norm_score > 0.6:
+            label = "BULLISH"
+            color = "#26a69a" # Green
+        elif norm_score < 0.4:
+            label = "BEARISH"
+            color = "#ef5350" # Red
+        else:
+            label = "NEUTRAL"
+            color = "#ffffff"
+            
+        confidence = abs(norm_score - 0.5) * 2
+        
+        return {"label": label, "score": norm_score, "color": color, "confidence": confidence}
 
 # ==========================================
 # 3. STATE MANAGEMENT
@@ -196,7 +226,7 @@ if 'history' not in st.session_state: st.session_state['history'] = []
 brain = SentimentBrain()
 
 # ==========================================
-# 4. PART A: LOGIN (THE GATEKEEPER)
+# 4. PART A: LOGIN
 # ==========================================
 if not st.session_state['authenticated']:
     col1, col2, col3 = st.columns([1, 1.5, 1])
@@ -224,10 +254,9 @@ if not st.session_state['authenticated']:
         st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# 5. PART B: THE MAIN DASHBOARD
+# 5. PART B: DASHBOARD
 # ==========================================
 else:
-    # Sidebar
     with st.sidebar:
         st.markdown(f"### 👤 <span class='gold-text'>{st.session_state.get('user_name', 'USER')}</span>", unsafe_allow_html=True)
         st.caption("JUGAR-AI // v1.0")
@@ -247,9 +276,8 @@ else:
             st.session_state['authenticated'] = False
             st.rerun()
 
-    # --- SECTION 1: INTRO ---
     if "1." in nav:
-        st.markdown('<h1 style="font-size:3.5rem;">Jugar <span class="gold-text">AI</span></h1>', unsafe_allow_html=True)
+        st.markdown('<h1 style="font-size:3.5rem;">PROJECT <span class="gold-text">JUGAR</span></h1>', unsafe_allow_html=True)
         st.markdown('<div class="jugar-card">', unsafe_allow_html=True)
         c1, c2 = st.columns([3, 1])
         with c1:
@@ -266,17 +294,13 @@ else:
             st.markdown("<h1 style='font-size:5rem; text-align:center;'>🧬</h1>", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- SECTION 2: EDA WAR ROOM (The Cool Part) ---
     elif "2." in nav:
         st.markdown('<h1 style="font-size:3rem;">📊 EDA <span class="gold-text">WAR ROOM</span></h1>', unsafe_allow_html=True)
-        
-        # Load Data
         try:
             df = pd.read_csv('Sentiment_Stock_data.csv')
             if 'Unnamed: 0' in df.columns: df = df.drop(columns=['Unnamed: 0'])
             df['Length'] = df['Sentence'].astype(str).apply(len)
         except:
-            # Fallback data if file missing just to show off the UI
             df = pd.DataFrame({'Sentiment': ['Positive']*50 + ['Negative']*50, 'Length': np.random.randint(20, 100, 100)})
         
         t1, t2, t3 = st.tabs(["VECTOR SPACE (3D)", "MARKET RECON (CANDLES)", "DATA DISTRIBUTION"])
@@ -284,7 +308,6 @@ else:
         with t1:
             st.markdown('<div class="jugar-card">', unsafe_allow_html=True)
             st.markdown("### 🧊 3D SENTIMENT CLUSTER")
-            # Mock 3D Data for visuals
             x = np.random.normal(0, 1, 200)
             y = np.random.normal(0, 1, 200)
             z = np.random.normal(0, 1, 200)
@@ -298,7 +321,6 @@ else:
         with t2:
             st.markdown('<div class="jugar-card">', unsafe_allow_html=True)
             st.markdown("### 🕯️ TARGET DOMAIN: MARKET VOLATILITY")
-            # Pull live SPY data just to show a cool candle chart in EDA
             fig_spy, _ = get_chart("SPY")
             if fig_spy: st.plotly_chart(fig_spy, use_container_width=True)
             st.caption("Exploratory Analysis of Target Variable (Market Price Action).")
@@ -308,7 +330,6 @@ else:
             c_left, c_right = st.columns(2)
             with c_left:
                 st.markdown('<div class="jugar-card"><h3>SENTIMENT HIERARCHY</h3>', unsafe_allow_html=True)
-                # Sunburst instead of Pie
                 fig_sun = px.sunburst(df, path=['Sentiment'], color='Sentiment', color_discrete_map={'Positive':'#26a69a', 'Negative':'#ef5350'})
                 fig_sun.update_layout(template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)')
                 st.plotly_chart(fig_sun, use_container_width=True)
@@ -316,15 +337,14 @@ else:
             
             with c_right:
                 st.markdown('<div class="jugar-card"><h3>TEXT LENGTH DENSITY</h3>', unsafe_allow_html=True)
-                # Area chart instead of Histogram
                 hist_data = np.histogram(df['Length'], bins=30)
                 fig_area = px.area(x=hist_data[1][:-1], y=hist_data[0], template='plotly_dark')
-                fig_area.update_traces(line_color='#FFD700', fill_color='rgba(255, 215, 0, 0.3)')
+                # FIX: Using fillcolor correctly here
+                fig_area.update_traces(line_color='#FFD700', fillcolor='rgba(255, 215, 0, 0.3)')
                 fig_area.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
                 st.plotly_chart(fig_area, use_container_width=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- SECTION 3: JUGAR TERMINAL (Live) ---
     elif "3." in nav:
         render_ticker()
         st.markdown('<h1 style="text-align:center; margin-bottom:20px;">JUGAR <span class="gold-text">TERMINAL</span></h1>', unsafe_allow_html=True)
@@ -357,8 +377,12 @@ else:
                     st.metric("LIVE PRICE", f"${last['Close']:,.2f}")
                     st.plotly_chart(fig, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
+            
+        with tabs[2]:
+            st.markdown('<div class="jugar-card">', unsafe_allow_html=True)
+            st.info("News feed integration pending API key...")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- SECTION 4: CONCLUSION ---
     elif "4." in nav:
         st.markdown('<h1 style="font-size:3rem;">🏁 SYSTEM <span class="gold-text">HALTED</span></h1>', unsafe_allow_html=True)
         st.markdown('<div class="jugar-card">', unsafe_allow_html=True)
