@@ -3,126 +3,127 @@ import streamlit as st
 def load_css():
     st.markdown("""
     <style>
-        /* FONTS: Poppins for UI, JetBrains Mono for Data */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        /* 1. IMPORT FUTURISTIC FONTS */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;600&display=swap');
 
-        /* GLOBAL THEME */
+        /* 2. GLOBAL RESET & SCROLLBAR */
         html, body, [class*="css"] {
-            font-family: 'Poppins', sans-serif;
-            color: #e2e8f0;
-            background-color: #0f172a;
+            font-family: 'Exo 2', sans-serif;
+            background-color: #000000;
+            color: #e0e0e0;
         }
         
-        /* BACKGROUND GRADIENT */
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00d2ff; }
+
+        /* 3. BACKGROUND ANIMATION (Subtle Pulse) */
         .stApp {
-            background: radial-gradient(circle at 10% 20%, #0f172a 0%, #020617 90%);
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 210, 255, 0.1), transparent 25%);
+            background-color: #000000;
         }
 
-        /* GLASS CARDS */
+        /* 4. TITLE: "ABDULLAH'S AI" */
+        .neon-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(to right, #00d2ff, #3a7bd5, #9d00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+            margin-bottom: 0px;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(0, 210, 255, 0.4); }
+            to { text-shadow: 0 0 30px rgba(157, 0, 255, 0.6); }
+        }
+
+        /* 5. GLASS CARDS (The "Container" Look) */
         .glass-card {
-            background: rgba(30, 41, 59, 0.3);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
             margin-bottom: 20px;
-            transition: transform 0.3s ease;
         }
         .glass-card:hover {
-            border-color: rgba(245, 158, 11, 0.3); /* Gold glow on hover */
+            transform: translateY(-5px);
+            border-color: rgba(0, 210, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 210, 255, 0.1);
         }
 
-        /* INPUT FIELDS */
-        .stTextArea textarea, .stTextInput input, .stSelectbox div[data-baseweb="select"] {
-            background-color: rgba(15, 23, 42, 0.8) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            color: #ffffff !important;
-            border-radius: 8px;
+        /* 6. INPUTS & TEXT AREAS */
+        .stTextArea textarea, .stTextInput input {
+            background-color: #0a0a0a !important;
+            border: 1px solid #333 !important;
+            color: #fff !important;
+            font-family: 'Exo 2', sans-serif;
+            border-radius: 12px;
         }
-        .stTextArea textarea:focus {
-            border-color: #f59e0b !important;
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+        .stTextArea textarea:focus, .stTextInput input:focus {
+            border-color: #00d2ff !important;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
         }
 
-        /* BUTTONS (The "Gold Standard") */
+        /* 7. NEON BUTTONS */
         .stButton>button {
-            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-            color: white !important;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            color: black !important;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
             border: none;
+            padding: 0.8rem 2rem;
             border-radius: 8px;
-            padding: 0.6rem 1.2rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            width: 100%;
             transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
         }
         .stButton>button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(217, 119, 6, 0.4);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
         }
 
-        /* TICKER ANIMATION */
+        /* 8. TICKER TAPE */
         .ticker-wrap {
             width: 100%;
-            background: rgba(0,0,0,0.5);
-            border-top: 1px solid #334155;
-            border-bottom: 1px solid #334155;
+            background: #050505;
+            border-bottom: 1px solid #222;
             overflow: hidden;
             white-space: nowrap;
-            padding: 8px 0;
-            margin-bottom: 2rem;
-        }
-        .ticker {
-            display: inline-block;
-            animation: marquee 40s linear infinite;
+            padding: 10px 0;
         }
         .ticker-item {
-            display: inline-block;
+            font-family: 'Orbitron', sans-serif;
+            color: #888;
+            font-size: 0.8rem;
             padding: 0 2rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: #94a3b8;
         }
-        .up { color: #10b981; font-weight: bold; }
-        .down { color: #ef4444; font-weight: bold; }
-        
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* METRICS */
-        div[data-testid="stMetricValue"] {
-            color: #f59e0b !important; /* Gold numbers */
-            font-family: 'JetBrains Mono', monospace;
-        }
+        .up { color: #00d2ff; }
+        .down { color: #ff0055; }
     </style>
     """, unsafe_allow_html=True)
 
 def render_header():
-    # Double the content for seamless infinite scroll
-    content = """
-    <span class="ticker-item">SPY <span class="up">▲ 0.5%</span></span>
-    <span class="ticker-item">BTC-USD <span class="down">▼ 1.2%</span></span>
-    <span class="ticker-item">TSLA <span class="up">▲ 2.4%</span></span>
-    <span class="ticker-item">NVDA <span class="up">▲ 1.8%</span></span>
-    <span class="ticker-item">EUR/USD <span class="down">▼ 0.1%</span></span>
-    <span class="ticker-item">GOLD <span class="up">▲ 0.3%</span></span>
-    """ * 5
-    
-    st.markdown(f"""
-    <div class="ticker-wrap">
-        <div class="ticker">
-            {content}
-        </div>
-    </div>
-    <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="margin:0; font-size: 3.5rem; background: linear-gradient(to right, #fbbf24, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(245, 158, 11, 0.3);">
-            AEGIS TERMINAL
-        </h1>
-        <p style="color: #64748b; font-family: 'JetBrains Mono'; margin-top: -10px;">INSTITUTIONAL SENTIMENT & MARKET ANALYZER</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Animated Title
+    st.markdown('<div class="neon-title">ABDULLAH\'S AI</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Neural Sentiment & Market Intelligence</div>', unsafe_allow_html=True)
