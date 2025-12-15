@@ -14,7 +14,6 @@ st.set_page_config(page_title="Jugar-AI", page_icon="💸", layout="wide")
 # ==========================================
 # 1. THE "MIDAS" STYLE ENGINE (EMBEDDED)
 # ==========================================
-# This acts as the CSS file. No external import needed.
 st.markdown("""
 <style>
     /* FONTS */
@@ -215,9 +214,11 @@ class SentimentBrain:
         return {"label": label, "score": score, "color": color, "confidence": abs(score-0.5)*2}
 
 # ==========================================
-# 3. STATE MANAGEMENT
+# 3. STATE MANAGEMENT (CRITICAL FIXES)
 # ==========================================
 if 'authenticated' not in st.session_state: st.session_state['authenticated'] = False
+# FIXED: Ensured user_name is used consistently
+if 'user_name' not in st.session_state: st.session_state['user_name'] = "OPERATOR" 
 if 'portfolio' not in st.session_state: st.session_state['portfolio'] = {'balance': 0}
 if 'history' not in st.session_state: st.session_state['history'] = []
 
@@ -244,7 +245,8 @@ if not st.session_state['authenticated']:
                 with st.spinner("ESTABLISHING SECURE CONNECTION..."):
                     time.sleep(1.5)
                     st.session_state['authenticated'] = True
-                    st.session_state['user'] = name.upper()
+                    # FIXED: Using user_name consistently
+                    st.session_state['user_name'] = name.upper()
                     st.session_state['portfolio']['balance'] = balance
                     st.rerun()
             else:
@@ -257,7 +259,8 @@ if not st.session_state['authenticated']:
 else:
     # --- SIDEBAR NAVIGATION ---
     with st.sidebar:
-        st.markdown(f"### 👤 OPERATOR: <span style='color:#FFD700'>{st.session_state['user']}</span>", unsafe_allow_html=True)
+        # FIXED: Accessing user_name safely
+        st.markdown(f"### 👤 OPERATOR: <span style='color:#FFD700'>{st.session_state.get('user_name', 'OPERATOR')}</span>", unsafe_allow_html=True)
         st.markdown("---")
         nav = st.radio("MISSION CONTROL", [
             "1. BRIEFING (Intro)", 
