@@ -1,6 +1,7 @@
 import streamlit as st
 
-def load_nexus_theme():
+# RENAMED FUNCTION TO FORCE UPDATE
+def load_project_styles():
     st.markdown("""
     <style>
         /* =============================================
