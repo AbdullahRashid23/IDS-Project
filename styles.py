@@ -1,6 +1,7 @@
 import streamlit as st
 
-def inject_glass_ui():
+# RENAMED FUNCTION TO FORCE UPDATE
+def load_citadel_theme():
     st.markdown("""
     <style>
         /* IMPORT TACTICAL FONTS */
