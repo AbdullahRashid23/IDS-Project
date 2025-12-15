@@ -1,129 +1,87 @@
 import streamlit as st
 
-def load_css():
+def inject_glass_ui():
     st.markdown("""
     <style>
-        /* 1. IMPORT FUTURISTIC FONTS */
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;600&display=swap');
+        /* IMPORT TACTICAL FONTS */
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Roboto+Mono:wght@400;700&display=swap');
 
-        /* 2. GLOBAL RESET & SCROLLBAR */
+        /* GLOBAL THEME */
         html, body, [class*="css"] {
-            font-family: 'Exo 2', sans-serif;
-            background-color: #000000;
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #050505;
             color: #e0e0e0;
         }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 5px; }
-        ::-webkit-scrollbar-thumb:hover { background: #00d2ff; }
 
-        /* 3. BACKGROUND ANIMATION (Subtle Pulse) */
+        /* BACKGROUND - DEEP CITADEL */
         .stApp {
-            background: 
-                radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(0, 210, 255, 0.1), transparent 25%);
-            background-color: #000000;
+            background: linear-gradient(to bottom, #0f172a, #000000);
         }
 
-        /* 4. TITLE: "ABDULLAH'S AI" */
-        .neon-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 4rem;
-            font-weight: 900;
-            text-align: center;
-            background: linear-gradient(to right, #00d2ff, #3a7bd5, #9d00ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
-            margin-bottom: 0px;
-            animation: glow 3s ease-in-out infinite alternate;
-        }
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            margin-bottom: 40px;
-            text-transform: uppercase;
+        /* SIDEBAR */
+        section[data-testid="stSidebar"] {
+            background-color: #0a0a0a;
+            border-right: 1px solid #1e293b;
         }
 
-        @keyframes glow {
-            from { text-shadow: 0 0 10px rgba(0, 210, 255, 0.4); }
-            to { text-shadow: 0 0 30px rgba(157, 0, 255, 0.6); }
+        /* HUD CARDS */
+        .hud-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-left: 4px solid #3b82f6; /* Tactical Blue Accent */
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
         }
 
-        /* 5. GLASS CARDS (The "Container" Look) */
-        .glass-card {
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-        }
-        .glass-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 210, 255, 0.3);
-            box-shadow: 0 10px 40px rgba(0, 210, 255, 0.1);
+        /* METRIC CONTAINERS */
+        div[data-testid="stMetricValue"] {
+            font-family: 'Roboto Mono', monospace;
+            color: #00ffa3; /* HUD Green */
         }
 
-        /* 6. INPUTS & TEXT AREAS */
-        .stTextArea textarea, .stTextInput input {
-            background-color: #0a0a0a !important;
-            border: 1px solid #333 !important;
-            color: #fff !important;
-            font-family: 'Exo 2', sans-serif;
-            border-radius: 12px;
-        }
-        .stTextArea textarea:focus, .stTextInput input:focus {
-            border-color: #00d2ff !important;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
-        }
-
-        /* 7. NEON BUTTONS */
+        /* BUTTONS */
         .stButton>button {
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            color: black !important;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 800;
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            background-color: #1e293b;
+            color: #00ffa3;
+            border: 1px solid #00ffa3;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            border-radius: 0px; /* Sharp corners */
+            transition: all 0.2s;
         }
         .stButton>button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
+            background-color: #00ffa3;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 163, 0.4);
         }
 
-        /* 8. TICKER TAPE */
-        .ticker-wrap {
-            width: 100%;
-            background: #050505;
-            border-bottom: 1px solid #222;
-            overflow: hidden;
-            white-space: nowrap;
-            padding: 10px 0;
+        /* INPUTS */
+        .stTextInput input, .stTextArea textarea {
+            background-color: #0a0a0a;
+            border: 1px solid #334155;
+            color: #fff;
+            font-family: 'Roboto Mono', monospace;
         }
-        .ticker-item {
-            font-family: 'Orbitron', sans-serif;
-            color: #888;
-            font-size: 0.8rem;
-            padding: 0 2rem;
+        
+        /* HEADERS */
+        h1, h2, h3 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        .up { color: #00d2ff; }
-        .down { color: #ff0055; }
     </style>
     """, unsafe_allow_html=True)
 
 def render_header():
-    # Animated Title
-    st.markdown('<div class="neon-title">ABDULLAH\'S AI</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Neural Sentiment & Market Intelligence</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #334155; padding-bottom: 10px;">
+        <h1 style="margin:0; font-size: 3rem; color: #fff; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);">
+            THE CITADEL
+        </h1>
+        <p style="font-family: 'Roboto Mono'; color: #64748b; font-size: 0.9rem;">
+            FINANCIAL INTELLIGENCE SUITE // <span style="color:#00ffa3">ONLINE</span>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
