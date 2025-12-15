@@ -249,7 +249,7 @@ else:
 
     # --- SECTION 1: INTRO ---
     if "1." in nav:
-        st.markdown('<h1 style="font-size:3.5rem;">PROJECT <span class="gold-text">JUGAR</span></h1>', unsafe_allow_html=True)
+        st.markdown('<h1 style="font-size:3.5rem;">Jugar <span class="gold-text">AI</span></h1>', unsafe_allow_html=True)
         st.markdown('<div class="jugar-card">', unsafe_allow_html=True)
         c1, c2 = st.columns([3, 1])
         with c1:
