@@ -1,50 +1,53 @@
 import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
-import ta # Technical Analysis Library
 
 def get_chart(ticker):
-    """Fetches data and builds a Tactical Candle Chart."""
+    """Fetches data and builds a High-Fidelity Neon Chart."""
     try:
-        # 1. Fetch Data
-        df = yf.download(ticker, period="6mo", interval="1d", progress=False)
-        if df.empty: return None
+        df = yf.download(ticker, period="3mo", interval="1d", progress=False)
+        if df.empty: return None, None
         
-        # 2. Add Technical Indicators (SMA 20)
-        # Using simple pandas rolling window for robustness
+        # Calculate Technicals
         df['SMA_20'] = df['Close'].rolling(window=20).mean()
 
-        # 3. Build Plotly Chart
+        # Create Figure
         fig = go.Figure()
 
-        # Candlesticks
-        fig.add_trace(go.Candlestick(
-            x=df.index,
-            open=df['Open'], high=df['High'],
-            low=df['Low'], close=df['Close'],
+        # 1. Main Price Line (Glowing Gradient)
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df['Close'],
+            mode='lines',
             name='Price',
-            increasing_line_color='#00ffa3',
-            decreasing_line_color='#ff2a2a'
+            line=dict(color='#38bdf8', width=3),
+            fill='tozeroy',
+            fillcolor='rgba(56, 189, 248, 0.1)' # Subtle fill
         ))
 
-        # SMA Overlay
+        # 2. SMA Line (Warning Color)
         fig.add_trace(go.Scatter(
             x=df.index, y=df['SMA_20'],
-            mode='lines', name='SMA (20)',
-            line=dict(color='#3b82f6', width=2)
+            mode='lines',
+            name='SMA 20',
+            line=dict(color='#fbbf24', width=2, dash='dot')
         ))
 
-        # Tactical Layout
+        # 3. Aesthetics (The "Dark Mode" Look)
         fig.update_layout(
-            title=f"{ticker} // TACTICAL VIEW",
             template="plotly_dark",
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
             height=500,
-            font={'family': "Roboto Mono"},
-            xaxis_rangeslider_visible=False,
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            margin=dict(t=50, b=20, l=20, r=20),
+            title=dict(
+                text=f"{ticker} // MARKET VECTOR",
+                font=dict(size=24, family="Orbitron", color="white")
+            ),
+            xaxis=dict(showgrid=False, showline=True, linecolor='#333'),
+            yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)'),
+            hovermode="x unified"
         )
-        return fig, df.iloc[-1] # Return fig and last row data
+        
+        return fig, df.iloc[-1]
     except Exception as e:
         return None, None
