@@ -46,7 +46,7 @@ with st.sidebar:
     st.caption(f"CORE STATUS: {'🟢 ONLINE' if not brain.use_fallback else '🟠 BACKUP ENGAGED'}")
 
 # 5. MAIN HEADER
-st.markdown('<div class="hero-text">QUANTUM NEXUS</div>', unsafe_allow_html=True)
+st.markdown('<div class="hero-text">Abdullah's AI</div>', unsafe_allow_html=True)
 st.markdown('<div style="color:#94a3b8; font-family:Syncopate; letter-spacing:4px; margin-bottom:40px;">THE ABDULLAH INTELLIGENCE ENGINE // V 4.0</div>', unsafe_allow_html=True)
 
 # 6. MODULES
