@@ -1,152 +1,185 @@
 import streamlit as st
 import pandas as pd
 import time
-# IMPORT MODULES (All in root)
+# IMPORT MODULES
 import styles
 import nlp_engine
 import market_data
 import simulator
 import reporting
 
-# 1. SETUP & SESSION STATE
-st.set_page_config(page_title="The Citadel", page_icon="🏯", layout="wide")
+# 1. CONFIGURATION
+st.set_page_config(page_title="Abdullah's AI", page_icon="💠", layout="wide")
 
-# --- FIX IS HERE: CALL THE NEW FUNCTION NAME ---
-styles.load_citadel_theme() 
+# 2. INJECT ASSETS
+styles.load_nexus_theme()
+styles.render_ticker() # <--- THE ANIMATED HEADER
 
+# 3. INITIALIZATION
 if 'history' not in st.session_state: st.session_state['history'] = []
 if 'portfolio' not in st.session_state: 
-    st.session_state['portfolio'] = {'balance': 10000.00, 'shares': 0}
+    st.session_state['portfolio'] = {'balance': 50000.00, 'shares': 0}
 
-# Initialize Classes
 brain = nlp_engine.SentimentBrain()
 sim = simulator.MarketSim()
 
-# 2. SIDEBAR NAVIGATION
+# 4. SIDEBAR (The Control Deck)
 with st.sidebar:
-    st.markdown("## 📟 NAVIGATION")
-    mode = st.radio("Select Module:", 
-        ["📡 SENTINEL (Analysis)", 
-         "📈 QUANT RADAR (Charts)", 
-         "📰 NEWSFLOW (Intel)", 
-         "💰 PAPER TRADER (Sim)", 
-         "📑 C-SUITE REPORT (Export)"])
+    st.image("https://img.icons8.com/fluency/96/artificial-intelligence.png", width=60)
+    st.markdown("## OPERATOR CONTROLS")
+    
+    # Custom Radio with Icons
+    mode = st.radio("SYSTEM MODULE", 
+        ["💠 SENTINEL CORE", 
+         "📈 MARKET VECTOR", 
+         "📰 GLOBAL FEED", 
+         "💳 TRADE SIMULATOR", 
+         "📂 DATA EXPORT"])
     
     st.markdown("---")
-    st.markdown(f"**CORE STATUS:** {'🟢 ONLINE' if not brain.use_fallback else '🟠 FALLBACK ACTIVE'}")
-    st.metric("PORTFOLIO VALUE", f"${st.session_state['portfolio']['balance']:,.2f}")
-
-styles.render_header()
-
-# 3. MODULE LOGIC
-
-# === MODULE 1: SENTINEL ===
-if "SENTINEL" in mode:
-    st.markdown('<div class="hud-card"><h3>📡 LIVE SENTIMENT INTERCEPT</h3>', unsafe_allow_html=True)
-    user_text = st.text_area("ENTER INTELLIGENCE STREAM:", height=100)
     
-    if st.button("INITIALIZE ANALYSIS"):
-        if user_text:
-            with st.spinner("DECRYPTING SIGNAL..."):
-                time.sleep(0.5)
-                res = brain.analyze(user_text)
-                
-                # Save to history
-                log_entry = {
-                    "time": time.strftime("%H:%M:%S"),
-                    "text": user_text,
-                    "label": res['label'],
-                    "score": res['score']
-                }
-                st.session_state['history'].insert(0, log_entry)
+    # Portfolio Widget
+    st.markdown("### 💼 ASSET WALLET")
+    st.metric("LIQUIDITY", f"${st.session_state['portfolio']['balance']:,.2f}", "+2.4%")
+    
+    st.markdown("---")
+    st.caption(f"CORE STATUS: {'🟢 ONLINE' if not brain.use_fallback else '🟠 BACKUP ENGAGED'}")
 
-                # Display Result
-                col1, col2, col3 = st.columns(3)
-                col1.metric("VERDICT", res['label'])
-                col1.markdown(f"<div style='background:{res['color']}; height:10px; width:100%;'></div>", unsafe_allow_html=True)
-                col2.metric("CONFIDENCE", f"{res['confidence']*100:.1f}%")
-                col3.metric("POLARITY SCORE", f"{res['score']:.3f}")
-    st.markdown("</div>", unsafe_allow_html=True)
+# 5. MAIN HEADER
+st.markdown('<div class="hero-text">QUANTUM NEXUS</div>', unsafe_allow_html=True)
+st.markdown('<div style="color:#94a3b8; font-family:Syncopate; letter-spacing:4px; margin-bottom:40px;">THE ABDULLAH INTELLIGENCE ENGINE // V 4.0</div>', unsafe_allow_html=True)
 
-# === MODULE 2: QUANT RADAR ===
-elif "QUANT" in mode:
-    st.markdown('<div class="hud-card"><h3>📈 TECHNICAL SURVEILLANCE</h3>', unsafe_allow_html=True)
-    ticker = st.text_input("TARGET ASSET TICKER:", value="NVDA").upper()
+# 6. MODULES
+
+# === SENTINEL CORE (Analysis) ===
+if "SENTINEL" in mode:
+    col_input, col_stats = st.columns([1.5, 1])
+    
+    with col_input:
+        st.markdown('<div class="nexus-card">', unsafe_allow_html=True)
+        st.markdown("### 📡 SIGNAL INTERCEPT")
+        user_text = st.text_area("AWAITING INPUT STREAM...", height=120)
+        
+        if st.button("EXECUTE ANALYSIS SEQUENCE", use_container_width=True):
+            if user_text:
+                with st.spinner("DECRYPTING NEURAL PATTERNS..."):
+                    time.sleep(0.6) # Theatrical delay
+                    res = brain.analyze(user_text)
+                    
+                    # Store
+                    st.session_state['history'].insert(0, {
+                        "time": time.strftime("%H:%M:%S"),
+                        "text": user_text,
+                        "label": res['label'],
+                        "score": res['score']
+                    })
+                    
+                    # Result Display
+                    st.success("ANALYSIS COMPLETE")
+                    st.markdown(f"""
+                    <div style="text-align:center; padding: 20px;">
+                        <div style="font-size:1.2rem; color:#94a3b8;">VERDICT</div>
+                        <div style="font-size:4rem; font-weight:900; color:{res['color']}; text-shadow: 0 0 40px {res['color']};">
+                            {res['label']}
+                        </div>
+                        <div style="font-family:monospace;">CONFIDENCE INTERVAL: {res['confidence']*100:.2f}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col_stats:
+        # Mini Dashboard
+        st.markdown('<div class="nexus-card">', unsafe_allow_html=True)
+        st.markdown("### ⚡ SYSTEM METRICS")
+        c1, c2 = st.columns(2)
+        c1.metric("CPU LOAD", "12%", "-2%")
+        c2.metric("LATENCY", "42ms", "-5ms")
+        st.markdown("---")
+        st.markdown("### 🧠 RECENT LOGS")
+        if st.session_state['history']:
+            last = st.session_state['history'][0]
+            st.code(f"[{last['time']}] {last['label']} \n>> {last['text'][:30]}...")
+        else:
+            st.caption("NO DATA LOGGED")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# === MARKET VECTOR (Charts) ===
+elif "MARKET" in mode:
+    st.markdown('<div class="nexus-card">', unsafe_allow_html=True)
+    c_search, c_btn = st.columns([4, 1])
+    with c_search:
+        ticker = st.text_input("ENTER ASSET TICKER", value="NVDA").upper()
+    with c_btn:
+        st.markdown("<br>", unsafe_allow_html=True)
+        refresh = st.button("SCAN")
     
     if ticker:
-        with st.spinner(f"ACQUIRING TARGET: {ticker}..."):
-            fig, last_row = market_data.get_chart(ticker)
-            if fig:
-                # Live Metrics
-                m1, m2, m3 = st.columns(3)
-                m1.metric("LATEST PRICE", f"${last_row['Close']:.2f}")
-                m2.metric("SMA (20)", f"${last_row['SMA_20']:.2f}")
-                
-                # Signal Logic
-                signal = "BUY" if last_row['Close'] > last_row['SMA_20'] else "SELL"
-                sig_color = "normal" if signal == "BUY" else "inverse"
-                m3.metric("TECH SIGNAL", signal, delta_color=sig_color)
-                
-                st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.error("TARGET NOT FOUND OR DATA UNAVAILABLE.")
-    st.markdown("</div>", unsafe_allow_html=True)
+        fig, last_row = market_data.get_chart(ticker)
+        if fig:
+            # Stats Row
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("PRICE", f"${last_row['Close']:.2f}")
+            m2.metric("HIGH (24H)", f"${last_row['High']:.2f}")
+            m3.metric("LOW (24H)", f"${last_row['Low']:.2f}")
+            m4.metric("VOLATILITY", f"{((last_row['High']-last_row['Low'])/last_row['Low']*100):.2f}%")
+            
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.error("ASSET NOT FOUND IN QUANTUM DATABASE")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# === MODULE 3: NEWSFLOW ===
-elif "NEWSFLOW" in mode:
-    st.markdown('<div class="hud-card"><h3>📰 GLOBAL INTEL STREAM</h3>', unsafe_allow_html=True)
-    if st.button("REFRESH FEED"):
-        st.session_state['news'] = sim.get_live_feed(5)
+# === GLOBAL FEED (News) ===
+elif "GLOBAL" in mode:
+    st.markdown('<div class="nexus-card">', unsafe_allow_html=True)
+    st.subheader("📰 LIVE INTELLIGENCE STREAM")
     
-    news = st.session_state.get('news', sim.get_live_feed(3))
+    if st.button("REFRESH UPLINK"):
+        st.session_state['news'] = sim.get_live_feed(4)
+    
+    news = st.session_state.get('news', sim.get_live_feed(4))
     
     for headline, sentiment in news:
+        color = "#4ade80" if sentiment == "Bullish" else "#f87171"
         st.markdown(f"""
-        <div style="border-left: 3px solid #334155; padding-left:10px; margin-bottom:10px;">
-            <span style="font-size:1.1rem; color: #fff;">{headline}</span><br>
-            <span style="font-size:0.8rem; color: #64748b;">IMPLIED SENTIMENT: {sentiment}</span>
+        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px; border-left:4px solid {color};">
+            <div style="font-size:1.1rem; font-weight:bold;">{headline}</div>
+            <div style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">AI PREDICTION: <span style="color:{color}">{sentiment}</span></div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button(f"ANALYZE: {headline[:15]}...", key=headline):
-            res = brain.analyze(headline)
-            st.info(f"AI VERDICT: {res['label']} ({res['score']:.2f})")
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# === MODULE 4: PAPER TRADER ===
-elif "PAPER" in mode:
-    st.markdown('<div class="hud-card"><h3>💰 TACTICAL SIMULATION SANDBOX</h3>', unsafe_allow_html=True)
+# === SIMULATOR ===
+elif "TRADE" in mode:
+    st.markdown('<div class="nexus-card">', unsafe_allow_html=True)
+    st.subheader("💳 TACTICAL SIMULATION")
     
-    c1, c2 = st.columns(2)
-    c1.metric("CASH BALANCE", f"${st.session_state['portfolio']['balance']:,.2f}")
-    c2.metric("ASSETS HELD", f"{st.session_state['portfolio']['shares']} SHARES")
+    col_sim_1, col_sim_2 = st.columns(2)
+    with col_sim_1:
+        sim_ticker = st.text_input("ASSET", value="BTC-USD").upper()
+        sim_price = 42000.00 # Mock
+        st.metric("LIVE PRICE (MOCK)", f"${sim_price:,.2f}")
     
-    st.markdown("---")
-    sim_ticker = st.text_input("SIMULATION ASSET", value="SPY").upper()
-    sim_price = 450.00 # Mock price for sim simplicity, or fetch real one
+    with col_sim_2:
+        action = st.radio("ACTION", ["BUY LONG", "SELL SHORT"], horizontal=True)
+        qty = st.number_input("QUANTITY", min_value=1, value=1)
     
-    st.caption(f"CURRENT MOCK PRICE: ${sim_price}")
-    
-    b1, b2 = st.columns(2)
-    if b1.button("🟢 EXECUTE BUY (1 SHARE)"):
-        success, msg = sim.execute_trade(st.session_state['portfolio'], 'buy', sim_price, 1)
-        if success: st.success(msg)
-        else: st.error(msg)
-        
-    if b2.button("🔴 EXECUTE SELL (1 SHARE)"):
-        success, msg = sim.execute_trade(st.session_state['portfolio'], 'sell', sim_price, 1)
-        if success: st.success(msg)
-        else: st.error(msg)
-    st.markdown("</div>", unsafe_allow_html=True)
+    if st.button("EXECUTE ORDER"):
+        success, msg = sim.execute_trade(st.session_state['portfolio'], 'buy' if 'BUY' in action else 'sell', sim_price, qty)
+        if success:
+            st.balloons()
+            st.success(msg)
+        else:
+            st.error(msg)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# === MODULE 5: REPORTING ===
-elif "REPORT" in mode:
-    st.markdown('<div class="hud-card"><h3>📑 EXECUTIVE SUMMARY</h3>', unsafe_allow_html=True)
-    
+# === REPORT ===
+elif "EXPORT" in mode:
+    st.markdown('<div class="nexus-card">', unsafe_allow_html=True)
+    st.subheader("📂 C-SUITE REPORT GENERATION")
     if st.session_state['history']:
         st.dataframe(pd.DataFrame(st.session_state['history']), use_container_width=True)
-        
-        report_link = reporting.generate_html_report(st.session_state['history'])
-        st.markdown(report_link, unsafe_allow_html=True)
+        link = reporting.generate_html_report(st.session_state['history'])
+        st.markdown(link, unsafe_allow_html=True)
     else:
-        st.warning("NO DATA LOGGED. INITIATE ANALYSIS IN SENTINEL MODULE.")
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.info("NO DATA AVAILABLE FOR EXPORT")
+    st.markdown('</div>', unsafe_allow_html=True)
