@@ -14,13 +14,15 @@ class SentimentEngine:
         self._load_resources()
 
     def _load_resources(self):
-        """Attempts to load trained models; switches to fallback if missing."""
+        """Attempts to load trained models from the ROOT directory."""
         try:
-            # Adjust paths as needed for your specific deployment
+            # CHANGED: Look for files in the CURRENT folder (no 'models/' path)
             base_path = os.path.dirname(os.path.abspath(__file__))
-            # Assuming models are in a folder relative to src or root
-            model_path = os.path.join(base_path, '../models/model.pkl')
-            tfidf_path = os.path.join(base_path, '../models/tfidf.pkl')
+            model_path = os.path.join(base_path, 'model.pkl')
+            tfidf_path = os.path.join(base_path, 'tfidf.pkl')
+
+            # Debug print to help you see where it's looking (optional)
+            # print(f"Looking for models at: {model_path}")
 
             if os.path.exists(model_path) and os.path.exists(tfidf_path):
                 self.model = joblib.load(model_path)
@@ -44,7 +46,7 @@ class SentimentEngine:
             return None
 
         if self.use_fallback:
-            # Fallback: TextBlob Logic (Polarity -1 to 1 -> normalize to 0 to 1)
+            # Fallback: TextBlob Logic
             blob = TextBlob(text)
             polarity = blob.sentiment.polarity
             score = (polarity + 1) / 2 # Normalize to 0-1
