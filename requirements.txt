@@ -10,3 +10,5 @@ wordcloud
 matplotlib
 seaborn
 streamlit-lottie
+requests
+yfinance
