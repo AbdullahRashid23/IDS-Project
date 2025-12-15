@@ -10,7 +10,9 @@ import reporting
 
 # 1. SETUP & SESSION STATE
 st.set_page_config(page_title="The Citadel", page_icon="🏯", layout="wide")
-styles.inject_glass_ui()
+
+# --- FIX IS HERE: CALL THE NEW FUNCTION NAME ---
+styles.load_citadel_theme() 
 
 if 'history' not in st.session_state: st.session_state['history'] = []
 if 'portfolio' not in st.session_state: 
