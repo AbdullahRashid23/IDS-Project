@@ -9,7 +9,7 @@ import simulator
 import reporting
 
 # 1. CONFIGURATION
-st.set_page_config(page_title="Abdullah's AI", page_icon="💠", layout="wide")
+st.set_page_config(page_title="Abdullah AI", page_icon="💠", layout="wide")
 
 # 2. INJECT ASSETS
 styles.load_nexus_theme()
