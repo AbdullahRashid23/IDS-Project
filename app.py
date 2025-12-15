@@ -47,7 +47,7 @@ with st.sidebar:
 
 # 5. MAIN HEADER
 st.markdown('<div class="hero-text">Jugar-AI</div>', unsafe_allow_html=True)
-st.markdown('<div style="color:#94a3b8; font-family:Syncopate; letter-spacing:4px; margin-bottom:40px;">THE ABDULLAH's INTELLIGENCE ENGINE</div>', unsafe_allow_html=True)
+st.markdown('<div style="color:#94a3b8; font-family:Syncopate; letter-spacing:4px; margin-bottom:40px;">THE ABDULLAH INTELLIGENCE ENGINE</div>', unsafe_allow_html=True)
 
 # 6. MODULES
 
