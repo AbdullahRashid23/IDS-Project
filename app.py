@@ -1,9 +1,12 @@
 import streamlit as st
 import pandas as pd
-from src import styles, engine, plots
+# CHANGED: Import directly (no 'from src')
+import styles
+import engine
+import plots
 
 # 1. SETUP
-st.set_page_config(page_title="Abdullah's AI", page_icon="🦅", layout="wide")
+st.set_page_config(page_title="Aegis Financial Terminal", page_icon="🦅", layout="wide")
 styles.load_css() # Inject CSS
 engine_core = engine.SentimentEngine() # Initialize Logic
 
@@ -19,7 +22,7 @@ with st.sidebar:
     st.markdown("### SYSTEM STATUS")
     if engine_core.use_fallback:
         st.warning("⚠️ MODE: FALLBACK (TextBlob)")
-        st.caption("Training models not found. Using rule-based analysis.")
+        st.caption("Training models not found in root folder. Using rule-based analysis.")
     else:
         st.success("🟢 MODE: NEURAL (Sklearn)")
         st.caption("Trained models loaded successfully.")
