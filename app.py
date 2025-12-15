@@ -9,7 +9,7 @@ import simulator
 import reporting
 
 # 1. CONFIGURATION
-st.set_page_config(page_title="Abdullah AI", page_icon="💠", layout="wide")
+st.set_page_config(page_title="NEXUS TERMINAL", page_icon="💠", layout="wide")
 
 # 2. INJECT ASSETS
 styles.load_nexus_theme()
@@ -46,7 +46,7 @@ with st.sidebar:
     st.caption(f"CORE STATUS: {'🟢 ONLINE' if not brain.use_fallback else '🟠 BACKUP ENGAGED'}")
 
 # 5. MAIN HEADER
-st.markdown('<div class="hero-text">Abdullah's AI</div>', unsafe_allow_html=True)
+st.markdown('<div class="hero-text">QUANTUM NEXUS</div>', unsafe_allow_html=True)
 st.markdown('<div style="color:#94a3b8; font-family:Syncopate; letter-spacing:4px; margin-bottom:40px;">THE ABDULLAH INTELLIGENCE ENGINE // V 4.0</div>', unsafe_allow_html=True)
 
 # 6. MODULES
@@ -116,12 +116,19 @@ elif "MARKET" in mode:
     if ticker:
         fig, last_row = market_data.get_chart(ticker)
         if fig:
-            # Stats Row
+            # Stats Row - FIX: CAST TO FLOAT TO PREVENT ERRORS
+            price = float(last_row['Close'])
+            high = float(last_row['High'])
+            low = float(last_row['Low'])
+            
             m1, m2, m3, m4 = st.columns(4)
-            m1.metric("PRICE", f"${last_row['Close']:.2f}")
-            m2.metric("HIGH (24H)", f"${last_row['High']:.2f}")
-            m3.metric("LOW (24H)", f"${last_row['Low']:.2f}")
-            m4.metric("VOLATILITY", f"{((last_row['High']-last_row['Low'])/last_row['Low']*100):.2f}%")
+            m1.metric("PRICE", f"${price:.2f}")
+            m2.metric("HIGH (24H)", f"${high:.2f}")
+            m3.metric("LOW (24H)", f"${low:.2f}")
+            
+            # Volatility Calc
+            vol = ((high - low) / low) * 100
+            m4.metric("VOLATILITY", f"{vol:.2f}%")
             
             st.plotly_chart(fig, use_container_width=True)
         else:
