@@ -1,102 +1,111 @@
 import streamlit as st
 import pandas as pd
-# CHANGED: Import directly (no 'from src')
+import time
+# IMPORT YOUR FILES
 import styles
 import engine
 import plots
 
-# 1. SETUP
-st.set_page_config(page_title="Aegis Financial Terminal", page_icon="🦅", layout="wide")
-styles.load_css() # Inject CSS
-engine_core = engine.SentimentEngine() # Initialize Logic
+# 1. PAGE SETUP
+st.set_page_config(page_title="Abdullah's AI", page_icon="🤖", layout="wide")
+styles.load_css()
+engine_core = engine.SentimentEngine()
 
-# 2. HEADER
-styles.render_header()
-
-# 3. SIDEBAR CONTROLS
+# 2. SIDEBAR (The Control Center)
 with st.sidebar:
-    st.header("⚙️ CONFIGURATION")
-    selected_ticker = st.text_input("MARKET TICKER", value="SPY", help="e.g. AAPL, BTC-USD").upper()
+    st.markdown("### 🎛️ CONTROL CENTER")
+    selected_ticker = st.text_input("TARGET TICKER", value="SPY").upper()
     
     st.markdown("---")
-    st.markdown("### SYSTEM STATUS")
+    # Status Indicator
     if engine_core.use_fallback:
-        st.warning("⚠️ MODE: FALLBACK (TextBlob)")
-        st.caption("Training models not found in root folder. Using rule-based analysis.")
+        st.error("⚠️ SYSTEM STATUS: OFFLINE")
+        st.caption("Running on fallback logic.")
     else:
-        st.success("🟢 MODE: NEURAL (Sklearn)")
-        st.caption("Trained models loaded successfully.")
+        st.success("🟢 SYSTEM STATUS: ONLINE")
+        st.caption("Neural Networks Active.")
 
-# 4. MAIN INTERFACE
-tab_live, tab_batch = st.tabs(["📡 LIVE SIGNAL", "📂 BATCH PROCESSOR"])
+# 3. MAIN UI
+styles.render_header()
 
-# --- TAB 1: LIVE ANALYSIS ---
-with tab_live:
-    col1, col2 = st.columns([1, 1.5])
-    
+# Create Tabs with Icons
+tab1, tab2 = st.tabs(["⚡ LIVE ANALYSIS", "📂 BATCH DATA"])
+
+with tab1:
+    col1, col2 = st.columns([1, 1.2])
+
+    # Left Column: User Input
     with col1:
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.subheader("Input Intelligence")
-        user_text = st.text_area("Paste News / Tweet / Headline", height=150, placeholder="e.g., Inflation data shows cooling trends, markets rally...")
+        st.markdown("### 📡 INPUT SIGNAL")
+        user_text = st.text_area("Enter Headline / Tweet / Market News", height=160, placeholder="e.g. Breaking: Tech stocks rally as inflation cools down...")
         
-        analyze_btn = st.button("ANALYZE SENTIMENT")
+        # The Action Button
+        if st.button("RUN DIAGNOSTIC", use_container_width=True):
+            if user_text:
+                with st.spinner("Compiling Neural Nodes..."):
+                    # Artifical delay for "tech" feel
+                    time.sleep(0.6) 
+                    result = engine_core.analyze(user_text)
+                    
+                    # Store result in session state to persist
+                    st.session_state['last_result'] = result
+            else:
+                st.warning("Input required.")
         st.markdown('</div>', unsafe_allow_html=True)
-        
-        if analyze_btn and user_text:
-            # ANALYSIS LOGIC
-            result = engine_core.analyze(user_text)
-            
-            # GAUGE CARD
-            st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-            st.metric("VERDICT", result['label'])
-            st.plotly_chart(plots.plot_gauge(result['score']), use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
 
+        # Show Results if they exist
+        if 'last_result' in st.session_state:
+            res = st.session_state['last_result']
+            st.markdown(f"""
+            <div class="glass-card" style="border-left: 5px solid {res['color']}">
+                <h2 style="color:{res['color']}; margin:0;">{res['label']}</h2>
+                <p style="color:#888;">Confidence Score: {int(res['score']*100)}%</p>
+            </div>
+            """, unsafe_allow_html=True)
+            st.plotly_chart(plots.plot_gauge(res['score']), use_container_width=True)
+
+    # Right Column: Market Data
     with col2:
-        # MARKET CONTEXT
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.subheader(f"Market Context: {selected_ticker}")
+        st.markdown(f"### 📊 MARKET CONTEXT: <span style='color:#00d2ff'>{selected_ticker}</span>", unsafe_allow_html=True)
         
-        with st.spinner(f"Fetching live data for {selected_ticker}..."):
+        with st.spinner(f"Establishing Uplink to {selected_ticker}..."):
             df_stock = engine_core.get_market_data(selected_ticker)
             
             if not df_stock.empty:
-                # Calculate simple return for metric
-                last_close = df_stock['Close'].iloc[-1]
-                prev_close = df_stock['Close'].iloc[-2]
-                delta = last_close - prev_close
+                # Calculate metrics
+                current = df_stock['Close'].iloc[-1]
+                prev = df_stock['Close'].iloc[-2]
+                change = current - prev
+                pct = (change / prev) * 100
+                color = "#00d2ff" if change >= 0 else "#ff0055"
                 
-                m1, m2, m3 = st.columns(3)
-                m1.metric("Last Price", f"${last_close:.2f}", f"{delta:.2f}")
-                m2.metric("Volume", f"{df_stock['Volume'].iloc[-1]/1000000:.1f}M")
-                m3.metric("Volatility", f"{(df_stock['High'].iloc[-1] - df_stock['Low'].iloc[-1]):.2f}")
+                # Custom Metric Display
+                st.markdown(f"""
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                    <div>
+                        <div style="color:#888; font-size:0.8rem;">CURRENT PRICE</div>
+                        <div style="font-size:2rem; font-weight:bold; font-family:'Orbitron';">${current:.2f}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="color:#888; font-size:0.8rem;">24H CHANGE</div>
+                        <div style="font-size:2rem; font-weight:bold; color:{color}; font-family:'Orbitron';">
+                            {change:+.2f} ({pct:+.2f}%)
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
                 
                 st.plotly_chart(plots.plot_stock_history(selected_ticker, df_stock), use_container_width=True)
             else:
-                st.error(f"Could not fetch data for {selected_ticker}. Check spelling.")
+                st.error("Data Uplink Failed. Check Ticker.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-# --- TAB 2: BATCH CSV ---
-with tab_batch:
+with tab2:
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.subheader("Bulk File Processor")
-    uploaded_file = st.file_uploader("Upload CSV (Required column: 'Sentence')", type="csv")
-    
-    if uploaded_file:
-        df_upload = pd.read_csv(uploaded_file)
-        if 'Sentence' in df_upload.columns:
-            if st.button("PROCESS DATASET"):
-                with st.spinner("Running Neural Engine..."):
-                    # Process rows
-                    results = df_upload['Sentence'].apply(lambda x: pd.Series(engine_core.analyze(x)))
-                    df_final = pd.concat([df_upload, results], axis=1)
-                    
-                    st.success("Analysis Complete")
-                    st.dataframe(df_final.head(), use_container_width=True)
-                    
-                    # Download
-                    csv = df_final.to_csv(index=False).encode('utf-8')
-                    st.download_button("DOWNLOAD REPORT", csv, "Aegis_Report.csv", "text/csv")
-        else:
-            st.error("CSV must contain a 'Sentence' column.")
+    st.markdown("### 📂 BATCH PROCESSOR")
+    upl = st.file_uploader("Upload CSV Data", type=['csv'])
+    if upl and st.button("EXECUTE BATCH"):
+        st.info("Batch processing logic here...")
     st.markdown('</div>', unsafe_allow_html=True)
