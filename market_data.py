@@ -5,7 +5,10 @@ import plotly.graph_objects as go
 def get_chart(ticker):
     """Fetches data and builds a High-Fidelity Neon Chart."""
     try:
-        df = yf.download(ticker, period="3mo", interval="1d", progress=False)
+        # FIX: Use Ticker.history for cleaner data structure
+        stock = yf.Ticker(ticker)
+        df = stock.history(period="3mo")
+        
         if df.empty: return None, None
         
         # Calculate Technicals
